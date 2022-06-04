@@ -6,25 +6,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { configService } from 'src/config/config.service';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthGuard } from 'src/jwt/authUser';
-import { MockAuthGuard } from 'src/jwt/authUserTest';
+import { APP_GUARD } from '@nestjs/core';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          envFilePath: '.env',
-          isGlobal: true,
-        }),
-        TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-        AppModule,
+      imports: [AppModule],
+      providers: [
+        {
+          provide: APP_GUARD,
+          useClass: JwtAuthGuard,
+        },
       ],
-    })
-      .overrideProvider(JwtAuthGuard)
-      .useClass(MockAuthGuard)
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

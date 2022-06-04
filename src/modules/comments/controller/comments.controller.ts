@@ -1,12 +1,14 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/jwt/authUser';
+import { onlyDelete } from 'src/utils/permissions';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { CommentsService } from '../service/comments.service';
@@ -15,28 +17,19 @@ import { CommentsService } from '../service/comments.service';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+  @Post('/')
+  createCommentComment(@Body() createCommentDto: CreateCommentDto) {
+    return this.commentsService.createCommentComment(createCommentDto);
   }
-
-  @Get()
-  findAll() {
-    return this.commentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+  @Post('/post')
+  createCommenPost(@Body() createCommentDto: CreateCommentDto) {
+    return this.commentsService.createCommenPost(createCommentDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string, @Request() req: any) {
+    onlyDelete(req.user?.permission);
     return this.commentsService.remove(+id);
   }
 }

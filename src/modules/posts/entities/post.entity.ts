@@ -1,5 +1,5 @@
 import { Users } from 'src/modules/users/entities/user.entity';
-import { Comment } from 'src/modules/comments/entities/comment.entity';
+import { Comments } from 'src/modules/comments/entities/comment.entity';
 
 import {
   BaseEntity,
@@ -12,7 +12,6 @@ import {
   Entity,
   OneToMany,
 } from 'typeorm';
-import { logsPosts } from './logs-post';
 
 @Entity('posts')
 export class Posts extends BaseEntity {
@@ -32,8 +31,8 @@ export class Posts extends BaseEntity {
   })
   value: string;
 
-  @OneToMany(() => Comment, (comment) => comment.post)
-  public comment: Comment[];
+  @OneToMany(() => Comments, (comment) => comment.post)
+  public comment: Comments[];
 
   @ManyToOne(() => Users, (user) => user.posts, {
     onDelete: 'CASCADE',

@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Users } from 'src/modules/users/entities/user.entity';
 import { Posts } from 'src/modules/posts/entities/post.entity';
-import { Comment } from 'src/modules/comments/entities/comment.entity';
+import { Comments } from 'src/modules/comments/entities/comment.entity';
 import { logsPosts } from 'src/modules/posts/entities/logs-post';
 
 dotenv.config();
@@ -36,8 +36,7 @@ class ConfigService {
       username: this.getValue('DB_USER'),
       password: this.getValue('DB_PASSWORD'),
       database: this.getValue('DB_DATABASE'),
-
-      entities: [Users, Posts, logsPosts, Comment],
+      entities: [Users, Posts, logsPosts, Comments],
       synchronize: true,
     };
   }

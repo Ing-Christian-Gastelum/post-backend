@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 
 @Entity('comments')
-export class Comment extends BaseEntity {
+export class Comments extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,40 +26,26 @@ export class Comment extends BaseEntity {
   updatedAt: Date;
 
   @Column({
-    unique: true,
-    nullable: true,
+    nullable: false,
   })
   value: string;
 
-  @OneToMany(() => Comment, (comment) => comment.comment)
-  private comments: Comment[];
-
-  @ManyToOne(() => Comment, (comment) => comment.comments, {
+  @ManyToOne(() => Comments, (comment) => comment.comments, {
     onDelete: 'CASCADE',
-    nullable: true,
   })
   @JoinColumn({ name: 'commentId' })
-  comment: Comment;
-  @Column()
+  comment: Comments;
+  @Column({ nullable: true })
   commentId: number;
+
+  @OneToMany(() => Comments, (comment) => comment.comment)
+  public comments: Comments[];
 
   @ManyToOne(() => Posts, (post) => post.comment, {
     onDelete: 'CASCADE',
-    nullable: true,
   })
   @JoinColumn({ name: 'postId' })
   post: Posts;
-  @Column()
+  @Column({ nullable: true })
   postId: number;
-
-  @ManyToOne(() => Users, (user) => user.posts, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
-  @JoinColumn({ name: 'userId' })
-  user: Users;
-  @Column({
-    nullable: false,
-  })
-  userId: string;
 }

@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { events } from 'src/enums/events.enums';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
+import { formatISO, getWeek } from 'date-fns';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { Posts } from '../entities/post.entity';
 import { logsPosts } from '../entities/logs-post';
+import { postQueryDto } from '../dto/PostQuery.dto';
 
 @Injectable()
 export class PostsService {
@@ -37,11 +39,36 @@ export class PostsService {
     return { message: 'Post creado.' };
   }
 
-  async findAll() {
-    return await this.postEntity.find({
-      order: {
-        createdAt: 'DESC',
-      },
+  async findAll(query: postQueryDto) {
+    const { startDate, endDate } = query;
+    let post = this.postEntity
+      .createQueryBuilder('posts')
+      .leftJoinAndSelect('posts.comment', 'comments')
+      .leftJoinAndSelect('comments.comments', 'comment');
+    if (startDate && endDate) {
+      const start = formatISO(startDate.setUTCHours(0, 0, 0, 0), {
+        representation: 'date',
+      });
+      const end = formatISO(endDate.setUTCHours(23, 59, 59, 59), {
+        representation: 'date',
+      });
+      post = post.where(`posts.createdAt BETWEEN '${start}' AND '${end}'`);
+    }
+    const posts = await post
+      .orderBy('posts.createdAt', 'DESC')
+      .orderBy('comments.createdAt', 'DESC')
+      .getMany();
+    const week = getWeek(new Date());
+    console.log(week);
+    return posts.map((post) => {
+      console.log();
+      if (getWeek(post.createdAt) < week) {
+        post = Object.assign(post, {
+          tag: true,
+        });
+        console.log(post);
+      }
+      return post;
     });
   }
 

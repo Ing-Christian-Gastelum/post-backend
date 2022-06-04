@@ -32,8 +32,6 @@ export function onlyUpdate(permission: string) {
 export function onlyDelete(permission: string) {
   if (permission === permitUser.ADMIN) {
     return;
-  } else if (permission === permitUser.SEE_CREATE_DELETE) {
-    return;
   } else if (permission !== permitUser.DELETE) {
     throw new HttpException(
       'No tienes permisos para eliminar',

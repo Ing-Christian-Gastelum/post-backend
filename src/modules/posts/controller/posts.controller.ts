@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Request,
+  ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/jwt/authUser';
 import {
@@ -17,6 +19,7 @@ import {
   onlyUpdate,
 } from 'src/utils/permissions';
 import { CreatePostDto } from '../dto/create-post.dto';
+import { postQueryDto } from '../dto/PostQuery.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { PostsService } from '../service/posts.service';
 
@@ -33,9 +36,17 @@ export class PostsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(@Request() req: any) {
+  findAll(
+    @Request() req: any,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+      }),
+    )
+    queryParams: postQueryDto,
+  ) {
     onlySeeCreateDelete(req.user?.permission);
-    return this.postsService.findAll();
+    return this.postsService.findAll(queryParams);
   }
 
   @Get('/logs')
@@ -66,7 +77,7 @@ export class PostsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @Request() req: any) {
-    onlyDelete(req.user?.permission);
+    onlySeeCreateDelete(req.user?.permission);
     return this.postsService.remove(req.user?.username, +id);
   }
 }
