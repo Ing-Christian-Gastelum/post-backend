@@ -59,14 +59,11 @@ export class PostsService {
       .orderBy('comments.createdAt', 'DESC')
       .getMany();
     const week = getWeek(new Date());
-    console.log(week);
     return posts.map((post) => {
-      console.log();
       if (getWeek(post.createdAt) < week) {
         post = Object.assign(post, {
           tag: true,
         });
-        console.log(post);
       }
       return post;
     });
